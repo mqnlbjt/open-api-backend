@@ -9,7 +9,7 @@ import service.InnerUserService;
 import javax.annotation.Resource;
 
 
-
+@DubboService
 public class InnerUserServiceImpl implements InnerUserService {
     @Resource
     private UserService userService;

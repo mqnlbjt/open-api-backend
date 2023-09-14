@@ -8,7 +8,7 @@ import service.innerInterfaceInfoService;
 import javax.annotation.Resource;
 
 
-
+@DubboService
 public class innerInterfaceInfoServiceImpl implements innerInterfaceInfoService {
     @Resource
     private InterfaceInfoService interfaceInfoService;

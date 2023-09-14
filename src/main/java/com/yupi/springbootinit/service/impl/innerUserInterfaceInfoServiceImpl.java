@@ -1,5 +1,6 @@
 package com.yupi.springbootinit.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yupi.springbootinit.common.ErrorCode;
 import com.yupi.springbootinit.exception.BusinessException;
@@ -11,13 +12,15 @@ import service.innerUserInterfaceInfoService;
 
 import javax.annotation.Resource;
 
-
-
+@DubboService
 public class innerUserInterfaceInfoServiceImpl extends ServiceImpl<UserInterfaceInfoMapper, UserInterfaceInfo>
         implements innerUserInterfaceInfoService {
 
     @Resource
     private UserInterfaceInfoService userInterfaceInfoService;
+
+    @Resource
+    private UserInterfaceInfoMapper userInterfaceInfoMapper;
 
     @Override
     public void validUserInterfaceInfo(model.entity.UserInterfaceInfo userInterfaceInfo, boolean b) {
@@ -41,7 +44,14 @@ public class innerUserInterfaceInfoServiceImpl extends ServiceImpl<UserInterface
     }
 
     @Override
-    public  boolean invokeCount(Long interfaceInfoId, Long userId) {
-       return userInterfaceInfoService.invokeCount(interfaceInfoId,userId);
+    public synchronized boolean invokeCount(Long interfaceInfoId, Long userId) {
+        QueryWrapper<UserInterfaceInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("interfaceInfoId",interfaceInfoId);
+        UserInterfaceInfo userInterfaceInfo = userInterfaceInfoMapper.selectOne(queryWrapper);
+        Integer leftNum = userInterfaceInfo.getLeftNum();
+        if (leftNum <= 0){
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR,"接口调用次数不足，请充值");
+        }
+        return userInterfaceInfoService.invokeCount(interfaceInfoId,userId);
     }
 }
